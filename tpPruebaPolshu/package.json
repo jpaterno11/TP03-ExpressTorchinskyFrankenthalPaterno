@@ -1,0 +1,17 @@
+{
+  "name": "tppruebapolshu",
+  "version": "1.0.0",
+  "description": "prueba",
+  "license": "ISC",
+  "author": "jpat",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "node ./src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}
