@@ -2,15 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import {OMDBSearchByPage, OMDBSearchComplete, OMDBGetByImdbID} from './modules/omdb-wrapper.js';
 import {PI, sumar, multiplicar, dividir, restar, mostrarArray} from './modules/matematica.js';
+import Alumno from './models/alumno.js';
 const app  = express();
 const port = 3000;              // El puerto 3000 (http://localhost:3000)
 
 // Agrego los Middlewares
 app.use(cors());         // Middleware de CORS
 app.use(express.json());
-app.listen(port, () => { 
-  console.log('Servidor escuchando en puerto '+port); 
-});
+
 
 app.get('/', (req, res) => { 
   res.send('¡Ya estoy respondiendo!');
@@ -56,7 +55,7 @@ app.get('/matematica/multiplicar', (req, res) => {
 app.get('/matematica/dividir', (req, res) => {
   let n1 = parseFloat(req.query.n1);
   let n2 = parseFloat(req.query.n2);
-  if (isNaN(n1) || isNaN(n2)){
+  if (isNaN(n1) || isNaN(n2) || n2 == 0){
     res.status(400).send('datos mal ingresados');
   } 
   res.status(200).send(dividir(n1, n2));
@@ -75,3 +74,43 @@ app.get('/omdb/getbyomdbid', async (req, res) => {
   res.status(200).send(await OMDBGetByImdbID(id));
 });
 
+const alumnosArray = [];
+alumnosArray.push(new Alumno("Esteban Dido"  , "22888444", 20));
+alumnosArray.push(new Alumno("Matias Queroso", "28946255", 51));
+alumnosArray.push(new Alumno("Elba Calao"    , "32623391", 18));
+
+app.get('/alumnos', (req, res) => { 
+  var texto = "";
+
+  for (let i = 0; i < alumnosArray.length; i++){
+    texto += alumnosArray[i].toString() + "\n";
+  }
+  res.status(200).send("Lista de alumnos:\n" + texto);
+});
+app.get('/alumnos/:dni', (req, res) => {
+  let dni = req.params.dni;
+  let alumno = alumnosArray.find(alumno => alumno.getDNI() === dni.toString());
+    if (!alumno) { 
+    res.status(400).send('Datos mal ingresados');
+  } else {
+    res.status(200).send(alumno); 
+  }
+});
+app.post('/alumnos', (req, res) =>{
+  const nombre = req.query.nombre;
+  const DNI = req.query.DNI;
+  const edad = req.query.edad;
+  alumnosArray.push(new Alumno(nombre, DNI, edad));
+  res.status(200).send("Created"); 
+
+})
+
+
+
+
+
+
+
+app.listen(port, () => { 
+  console.log('Servidor escuchando en puerto '+port); 
+});

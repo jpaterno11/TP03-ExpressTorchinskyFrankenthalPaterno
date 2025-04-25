@@ -18,7 +18,8 @@ const OMDBSearchByPage = async (searchText, page = 1) => {
 const OMDBSearchComplete = async (searchText) => {
     let returnObject = {
     respuesta : false,
-    datos : []
+    datos : [],
+    cantidadTotal : 0
     };
     const response = await  OMDBSearchByPage(searchText) 
     if (response.data.Response === "True") {
@@ -32,6 +33,7 @@ const OMDBSearchComplete = async (searchText) => {
 const OMDBGetByImdbID = async (imdbID) => {
     let returnObject = {
     respuesta : false,
+    cantidadTotal : 0,
     datos : {}
     };
     const response = await axios.get(`http://www.omdbapi.com/?i=${imdbID}&apikey=${APIKEY}`);

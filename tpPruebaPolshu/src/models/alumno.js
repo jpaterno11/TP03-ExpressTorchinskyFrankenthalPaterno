@@ -17,6 +17,6 @@ export default class Alumno{
        return this.edad;
     }
     toString(){
-       return `nombre:${this.username}, DNI:${this.DNI}, edad:${this.edad}`;
+       return `nombre: ${this.username}, DNI: ${this.DNI}, edad: ${this.edad}`;
     }        
 }
