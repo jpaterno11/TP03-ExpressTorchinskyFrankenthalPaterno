@@ -3,6 +3,8 @@ import cors from 'cors';
 import {OMDBSearchByPage, OMDBSearchComplete, OMDBGetByImdbID} from './modules/omdb-wrapper.js';
 import {PI, sumar, multiplicar, dividir, restar, mostrarArray} from './modules/matematica.js';
 import Alumno from './models/alumno.js';
+import ValidacionesHelper from './src/modules/validaciones-helper.js';
+import DateTimeHelper from './modules/datetime-helper.js';
 const app  = express();
 const port = 3000;              // El puerto 3000 (http://localhost:3000)
 
@@ -61,12 +63,12 @@ app.get('/matematica/dividir', (req, res) => {
   res.status(200).send(dividir(n1, n2));
 });
 app.get('/omdb/searchbypage', async (req, res) => {
-  const texto = req.query.search;
-  const pagina = req.query.p;
+  let texto = ValidacionesHelper.getStringOrDefault(req.query.search, '');
+  let pagina = ValidacionesHelper.getIntegerOrDefault(req.query.p, 1);
   res.status(200).send(await OMDBSearchByPage(texto, pagina));
 });
 app.get('/omdb/searchcomplete', async (req, res) => {
-  const texto = req.query.search;
+  let texto = ValidacionesHelper.getStringOrDefault(req.query.search, '');
   res.status(200).send(await OMDBSearchComplete(texto));
 });
 app.get('/omdb/getbyomdbid', async (req, res) => {
@@ -104,13 +106,70 @@ app.post('/alumnos', (req, res) =>{
   res.status(200).send("Created"); 
 
 })
+app.delete('/alumnos', (req, res) =>{
+  let dni = req.query.dni;
+  let alumno = alumnosArray.findIndex(alumno => alumno.getDNI() === dni.toString());
+    if (alumno === -1) { 
+    res.status(400).send('Datos mal ingresados');
+  } else {
+    alumnosArray.splice(alumno, 1)
+    res.status(200).send("eliminado"); 
+  }
+})
+app.get('/fechas/isDate', (req, res) => {
+  const { fecha } = req.query;
+  const date = new Date(fecha);
 
+  if (dateTimeHelper.isDate(date)) {
+    res.status(200).send('Fecha válida');
+  } else {
+    res.status(400).send('Fecha inválida');
+  }
+});
+app.get('/fechas/getEdadActual', (req, res) => {
+  const { fechaNacimiento } = req.query;
+  const date = new Date(fechaNacimiento);
 
+  if (dateTimeHelper.isDate(date)) {
+    const edad = dateTimeHelper.getEdadActual(date);
+    res.status(200).json({ edad });
+  } else {
+    res.status(400).send('Fecha inválida');
+  }
+});
+app.get('/fechas/getDiasHastaMiCumple', (req, res) => {
+  const { fechaNacimiento } = req.query;
+  const date = new Date(fechaNacimiento);
 
+  if (dateTimeHelper.isDate(date)) {
+    const diasRestantes = dateTimeHelper.getDiasHastaMiCumple(date);
+    res.status(200).json({ diasRestantes });
+  } else {
+    res.status(400).send('Fecha inválida');
+  }
+});
+app.get('/fechas/getDiaTexto', (req, res) => {
+  const { fecha, abr } = req.query;
+  const date = new Date(fecha);
 
+  if (dateTimeHelper.isDate(date)) {
+    const dia = dateTimeHelper.getDiaTexto(date, abr === 'true');
+    res.status(200).json({ dia });
+  } else {
+    res.status(400).send('Fecha inválida');
+  }
+});
+app.get('/fechas/getMesTexto', (req, res) => {
+  const { fecha, abr } = req.query;
+  const date = new Date(fecha);
 
-
-
+  if (dateTimeHelper.isDate(date)) {
+    const mes = dateTimeHelper.getMesTexto(date, abr === 'true');
+    res.status(200).json({ mes });
+  } else {
+    res.status(400).send('Fecha inválida');
+  }
+});
 app.listen(port, () => { 
   console.log('Servidor escuchando en puerto '+port); 
 });
